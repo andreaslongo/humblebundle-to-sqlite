@@ -1,0 +1,25 @@
+= Humblebundle to SQLite
+
+Load data from humblebundle.com into a SQLite database.
+
+
+== How to install
+
+//  $ pip install humblebundle-to-sqlite
+[source,console]
+----
+$ pip install git+https://github.com/andreaslongo/humblebundle-to-sqlite.git@latest
+----
+
+
+== Loading bundles data
+
+The `bundles` command loads all bundles from the current humblebundle.com offerings.
+
+[source,console]
+----
+$ humblebundle-to-sqlite bundles humblebundle.db
+Loading bundles  [###################-----------------]   55%
+----
+
+You can run this command on a regular basis to save a history of bundles over time.

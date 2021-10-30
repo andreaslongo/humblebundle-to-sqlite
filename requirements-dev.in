@@ -1,0 +1,10 @@
+-c requirements.txt
+black
+flake8
+flake8-bandit
+flake8-bugbear
+mypy
+pip-tools
+pytest
+pytest-cov
+types-beautifulsoup4
