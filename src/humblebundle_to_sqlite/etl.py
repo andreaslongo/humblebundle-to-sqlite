@@ -107,7 +107,7 @@ def extract_bundles(http_client: Any, bundles_url: str) -> list[Bundle]:
 
     for bundle in bundles:
         html = _get_htlm(http_client, HUMBLEBUNDLE_URL + bundle.url)
-        items_data = _extract_items_data(html)
+        items_data = _extract_items(html)
         items = _transform_items(items_data)
         bundle.items = items
 
@@ -134,7 +134,7 @@ def _extract_bundles(bundles_html: bytes) -> list[dict[str, Any]]:
     return bundles_data
 
 
-def _extract_items_data(items_html: bytes) -> list[dict[str, Any]]:
+def _extract_items(items_html: bytes) -> list[dict[str, Any]]:
     soup = bs4.BeautifulSoup(items_html, "html.parser")
     tag = cast(bs4.element.Tag, soup.find(id="webpack-bundle-page-data"))
     script = cast(bs4.element.Script, tag.string)
@@ -172,12 +172,14 @@ def _transform_bundles(bundles_data: list[dict[str, Any]]) -> list[Bundle]:
 def _transform_items(items_data: list[dict[str, Any]]) -> list[Item]:
     items = []
     for item in items_data:
-        if not item["item_content_type"]:
+        if not _is_item(item):
             continue
 
         author = ""
         if item["developers"]:
             author = item["developers"][0].get("developer-name")
+            if not author:
+                author = item["developers"][0].get("developer-url")
 
         publisher = ""
         if item["publishers"]:
@@ -201,3 +203,7 @@ def _transform_items(items_data: list[dict[str, Any]]) -> list[Item]:
         )
         items.append(i)
     return items
+
+
+def _is_item(item: dict[str, Any]) -> bool:
+    return True if item["item_content_type"] else False

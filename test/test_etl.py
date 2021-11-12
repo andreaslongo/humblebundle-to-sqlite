@@ -67,6 +67,16 @@ def get_book_items_html() -> bytes:
     return html
 
 
+def get_book_items_html_bad() -> bytes:
+    """Source: https://www.humblebundle.com/books/fan-faves-and-new-hits-dynamite-2021-books
+
+    This snapshot contains 46 book items + ? charity of 1 bundle.
+    """
+    p = pathlib.Path(__file__).parent / "humblebundle.com.items.books.bad.html"
+    html = p.read_bytes()
+    return html
+
+
 def get_game_items_html() -> bytes:
     """Source: https://www.humblebundle.com/games/play-pink-best-asmodee-digital
 
@@ -104,23 +114,37 @@ def get_bundles() -> list[etl.Bundle]:
 
 def get_book_items() -> list[etl.Item]:
     html = get_book_items_html()
-    items_data = etl._extract_items_data(html)
+    items_data = etl._extract_items(html)
     items = etl._transform_items(items_data)
     return items
 
 
 def get_game_items() -> list[etl.Item]:
     html = get_game_items_html()
-    items_data = etl._extract_items_data(html)
+    items_data = etl._extract_items(html)
     items = etl._transform_items(items_data)
     return items
 
 
 def get_software_items() -> list[etl.Item]:
     html = get_software_items_html()
-    items_data = etl._extract_items_data(html)
+    items_data = etl._extract_items(html)
     items = etl._transform_items(items_data)
     return items
+
+
+def test_extract_bundles_data_from_bundles_html() -> None:
+    html = get_bundles_html()
+    bundles_data = etl._extract_bundles(html)
+    assert bundles_data
+    assert len(bundles_data) == 10
+
+
+def test_transform_bundles_from_bundles_data() -> None:
+    html = get_bundles_html()
+    bundles_data = etl._extract_bundles(html)
+    bundles = etl._transform_bundles(bundles_data)
+    assert len(bundles) == 10
 
 
 @pytest.mark.parametrize(
@@ -135,16 +159,9 @@ def test_extract_items_data_from_items_html(
     test_input: Callable[[], bytes], expected: int
 ) -> None:
     html = test_input()
-    items_data = etl._extract_items_data(html)
+    items_data = etl._extract_items(html)
     assert items_data
     assert len(items_data) == expected
-
-
-def test_extract_bundles_data_from_bundles_html() -> None:
-    html = get_bundles_html()
-    bundles_data = etl._extract_bundles(html)
-    assert bundles_data
-    assert len(bundles_data) == 10
 
 
 @pytest.mark.parametrize(
@@ -153,13 +170,14 @@ def test_extract_bundles_data_from_bundles_html() -> None:
         (get_book_items_html, 15),
         (get_game_items_html, 25),
         (get_software_items_html, 14),
+        (get_book_items_html_bad, 46),
     ],
 )
-def test_extract_items_from_items_data(
+def test_transform_items_from_items_data(
     test_input: Callable[[], bytes], expected: int
 ) -> None:
     html = test_input()
-    items_data = etl._extract_items_data(html)
+    items_data = etl._extract_items(html)
     items = etl._transform_items(items_data)
     assert len(items) == expected
 
