@@ -77,11 +77,10 @@ install_production() {
 
 
 install_development() {
-    # python -m pip install --no-deps --upgrade pip setuptools wheel
     python -m pip install --no-deps --upgrade pip setuptools wheel pip-tools
-    python -m pip install --no-deps --editable .
     # python -m pip install --require-hashes --no-deps --upgrade --requirement requirements.txt  --requirement requirements-dev.txt
     python -m piptools sync --pip-args '--require-hashes --no-deps' requirements.txt requirements-dev.txt
+    python -m pip install --no-deps --editable .
 }
 
 
